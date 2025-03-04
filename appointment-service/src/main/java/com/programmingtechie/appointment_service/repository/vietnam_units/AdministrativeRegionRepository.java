@@ -1,0 +1,7 @@
+package com.programmingtechie.appointment_service.repository.vietnam_units;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.programmingtechie.appointment_service.enity.vietnam_units.AdministrativeRegion;
+
+public interface AdministrativeRegionRepository extends JpaRepository<AdministrativeRegion, Integer> {}
