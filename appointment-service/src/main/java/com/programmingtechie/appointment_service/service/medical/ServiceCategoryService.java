@@ -14,7 +14,7 @@ import com.programmingtechie.appointment_service.dto.request.medical.ServiceCate
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.dto.response.medical.ServiceCategoryResponse;
 import com.programmingtechie.appointment_service.enity.medical.ServiceCategory;
-import com.programmingtechie.appointment_service.mapper.ServiceCategoryMapper;
+import com.programmingtechie.appointment_service.mapper.medical.ServiceCategoryMapper;
 import com.programmingtechie.appointment_service.repository.medical.ServiceCategoryRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -70,9 +70,13 @@ public class ServiceCategoryService {
             throw new IllegalArgumentException("Tên danh mục dịch vụ đã tồn tại!");
         }
 
+        Integer order = serviceCategoryRepository.findMaxDisplayOrder().get();
+
         ServiceCategory serviceCategory = ServiceCategory.builder()
                 .id(UUID.randomUUID().toString())
                 .categoryName(serviceCategoryRequest.getCategoryName())
+                .description((serviceCategoryRequest.getDescription()))
+                .displayOrder(order+1)
                 .build();
 
         serviceCategory = serviceCategoryRepository.save(serviceCategory);
@@ -116,5 +120,22 @@ public class ServiceCategoryService {
 
         serviceCategoryRepository.deleteById(id);
         return ResponseEntity.ok("Danh mục dịch vụ có mã " + id + " đã được xóa thành công.");
+    }
+
+    public PageResponse<ServiceCategoryResponse> search(int page, int size, String keyword) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<ServiceCategory> pageData = serviceCategoryRepository.search(keyword, pageable);
+
+        List<ServiceCategoryResponse> serviceCategoryResponses = pageData.getContent().stream()
+                .map(serviceCategoryMapper::toServiceCategoryResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<ServiceCategoryResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(serviceCategoryResponses)
+                .build();
     }
 }

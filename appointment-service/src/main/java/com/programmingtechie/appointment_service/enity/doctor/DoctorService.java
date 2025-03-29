@@ -30,8 +30,8 @@ public class DoctorService {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @Column(name = "service_fee", nullable = false)
-    private Double serviceFee;
+    @Column(name = "price", nullable = false)
+    private String serviceFee;
 
     @Column(name = "status", nullable = false)
     private Boolean status; // Trạng thái: true = Nhận đăng ký, false = Ngừng hoạt động

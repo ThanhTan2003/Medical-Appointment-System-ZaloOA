@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.response.doctor.DoctorServiceResponse;
 import com.programmingtechie.appointment_service.enity.doctor.DoctorService;
-import com.programmingtechie.appointment_service.mapper.ServiceMapper;
+import com.programmingtechie.appointment_service.mapper.medical.ServiceMapper;
 
 @Component
 public class DoctorServiceMapper {

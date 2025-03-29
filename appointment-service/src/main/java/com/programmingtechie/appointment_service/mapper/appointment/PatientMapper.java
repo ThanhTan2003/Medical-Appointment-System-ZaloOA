@@ -1,5 +1,6 @@
 package com.programmingtechie.appointment_service.mapper.appointment;
 
+import com.programmingtechie.appointment_service.enums.IconURLAddress;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.response.appointment.PatientResponse;
@@ -17,7 +18,8 @@ public class PatientMapper {
                 .dateOfBirth(patient.getDateOfBirth())
                 .identityCard(patient.getIdentityCard())
                 .address(patient.getAddress())
-                .notes(patient.getNotes())
+                .insuranceId(patient.getInsuranceId())
+                .image(IconURLAddress.PATIENT.getUrl())
                 .build();
     }
 }

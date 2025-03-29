@@ -3,7 +3,6 @@ package com.programmingtechie.appointment_service.controller.vietnam_units;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.enity.vietnam_units.Province;
@@ -28,7 +27,6 @@ public class ProvinceController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc') or hasRole('NguoiDung')")
     public List<Province> getAllProvinces() {
         return provinceService.getAllProvinces();
     }

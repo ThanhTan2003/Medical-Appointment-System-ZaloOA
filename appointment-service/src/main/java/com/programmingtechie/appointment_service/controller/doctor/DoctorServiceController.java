@@ -1,5 +1,6 @@
 package com.programmingtechie.appointment_service.controller.doctor;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,7 @@ import com.programmingtechie.appointment_service.service.doctor.DoctorServiceSer
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/doctor-services")
+@RequestMapping("/api/v1/appointment/doctor-service")
 @RequiredArgsConstructor
 public class DoctorServiceController {
     final DoctorServiceService doctorServiceService;
@@ -26,6 +27,24 @@ public class DoctorServiceController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return doctorServiceService.getAll(page, size);
+    }
+
+    @GetMapping("/search-by-service")
+    public PageResponse<DoctorServiceResponse> searchByService(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String serviceId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return doctorServiceService.searchByService(keyword, serviceId, page, size);
+    }
+
+    @GetMapping("/search-by-doctor")
+    public PageResponse<DoctorServiceResponse> searchByDoctor(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String doctorId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return doctorServiceService.searchByDoctor(keyword, doctorId, page, size);
     }
 
     @GetMapping("/{id}")

@@ -16,8 +16,6 @@ public class DoctorResponse {
 
     private String zaloUid;
 
-    private String academicTitle;
-
     private String phone;
 
     private String gender;
@@ -27,4 +25,8 @@ public class DoctorResponse {
     private Boolean status;
 
     private String statusName;
+
+    private String image;
+
+    private String nameOfServiceCategory;
 }

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.programmingtechie.appointment_service.enity.doctor.DoctorSchedule;
 import jakarta.persistence.*;
 
 import com.programmingtechie.appointment_service.enity.doctor.DoctorService;
@@ -27,7 +28,6 @@ import lombok.*;
             @Index(name = "idx_doctor_service_id", columnList = "doctor_service_id")
         })
 public class Appointment {
-
     @Id
     @Column(nullable = false, length = 36, unique = true)
     private String id;
@@ -44,8 +44,8 @@ public class Appointment {
     private DoctorService doctorService;
 
     @ManyToOne
-    @JoinColumn(name = "time_frame_id", nullable = false)
-    private TimeFrame timeFrame;
+    @JoinColumn(name = "doctor_schedule_id", nullable = false)
+    private DoctorSchedule doctorSchedule;
 
     @Column(name = "booking_time", nullable = false)
     private LocalDateTime bookingTime;

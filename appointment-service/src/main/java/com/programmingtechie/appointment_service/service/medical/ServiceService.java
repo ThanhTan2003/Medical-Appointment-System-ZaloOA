@@ -1,6 +1,7 @@
 package com.programmingtechie.appointment_service.service.medical;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import com.programmingtechie.appointment_service.dto.request.medical.ServiceRequ
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
 import com.programmingtechie.appointment_service.dto.response.medical.ServiceResponse;
 import com.programmingtechie.appointment_service.enity.medical.ServiceCategory;
-import com.programmingtechie.appointment_service.mapper.ServiceMapper;
+import com.programmingtechie.appointment_service.mapper.medical.ServiceMapper;
 import com.programmingtechie.appointment_service.repository.medical.ServiceCategoryRepository;
 import com.programmingtechie.appointment_service.repository.medical.ServiceRepository;
 
@@ -88,7 +89,7 @@ public class ServiceService {
                         .id(UUID.randomUUID().toString())
                         .serviceName(serviceRequest.getServiceName())
                         .description(serviceRequest.getDescription())
-                        .suggestedFee(serviceRequest.getSuggestedFee())
+                        .price(serviceRequest.getPrice())
                         .serviceCategory(serviceCategory)
                         .status(serviceRequest.getStatus())
                         .build();
@@ -122,8 +123,8 @@ public class ServiceService {
             existingService.setDescription(serviceRequest.getDescription());
             isUpdated = true;
         }
-        if (!existingService.getSuggestedFee().equals(serviceRequest.getSuggestedFee())) {
-            existingService.setSuggestedFee(serviceRequest.getSuggestedFee());
+        if (!existingService.getPrice().equals(serviceRequest.getPrice())) {
+            existingService.setPrice(serviceRequest.getPrice());
             isUpdated = true;
         }
         if (!existingService.getServiceCategory().equals(serviceCategory)) {
@@ -154,5 +155,26 @@ public class ServiceService {
 
         serviceRepository.deleteById(id);
         return ResponseEntity.ok("Dịch vụ có mã " + id + " đã được xóa thành công.");
+    }
+
+    public PageResponse<ServiceResponse> search(String keyword, String serviceCategoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<com.programmingtechie.appointment_service.enity.medical.Service> pageData;
+        if(Objects.equals(serviceCategoryId, "") || serviceCategoryId.isEmpty())
+            pageData = serviceRepository.search(keyword, pageable);
+        else
+            pageData = serviceRepository.search(keyword, serviceCategoryId, pageable);
+
+        List<ServiceResponse> serviceResponses = pageData.getContent().stream()
+                .map(serviceMapper::toServiceResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<ServiceResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(serviceResponses)
+                .build();
     }
 }

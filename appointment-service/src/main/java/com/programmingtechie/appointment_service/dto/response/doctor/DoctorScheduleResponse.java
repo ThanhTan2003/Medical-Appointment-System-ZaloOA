@@ -23,6 +23,8 @@ public class DoctorScheduleResponse {
 
     private Boolean status;
 
+    private String roomName;
+
     private DoctorResponse doctorResponse;
 
     private TimeFrameResponse timeFrameResponse;

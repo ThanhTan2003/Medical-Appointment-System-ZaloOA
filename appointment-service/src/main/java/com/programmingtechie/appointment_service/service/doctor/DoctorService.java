@@ -93,7 +93,6 @@ public class DoctorService {
         Doctor doctor = Doctor.builder()
                 .id(id)
                 .name(doctorRequest.getName())
-                .academicTitle(doctorRequest.getAcademicTitle())
                 .phone(doctorRequest.getPhone())
                 .gender(doctorRequest.getGender())
                 .description(doctorRequest.getDescription())
@@ -116,10 +115,6 @@ public class DoctorService {
 
         if (!existingDoctor.getName().equals(doctorRequest.getName())) {
             existingDoctor.setName(doctorRequest.getName());
-            isUpdated = true;
-        }
-        if (!existingDoctor.getAcademicTitle().equals(doctorRequest.getAcademicTitle())) {
-            existingDoctor.setAcademicTitle(doctorRequest.getAcademicTitle());
             isUpdated = true;
         }
         if (!existingDoctor.getPhone().equals(doctorRequest.getPhone())) {
@@ -178,6 +173,18 @@ public class DoctorService {
     public PageResponse<DoctorResponse> searchDoctorsByStatus(Boolean status, int page, int size) {
         PageRequest pageable = PageRequest.of(page - 1, size);
         Page<Doctor> doctorPage = doctorRepository.findByStatus(status, pageable);
+
+        List<DoctorResponse> doctorResponses = doctorPage.getContent().stream()
+                .map(doctorMapper::toDoctorResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                doctorPage.getTotalPages(), page, size, doctorPage.getTotalElements(), doctorResponses);
+    }
+
+    public PageResponse<DoctorResponse> searchByService(String keyword, String serviceId, int page, int size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+        Page<Doctor> doctorPage = doctorRepository.findDoctorsByServiceId(keyword, serviceId, pageable);
 
         List<DoctorResponse> doctorResponses = doctorPage.getContent().stream()
                 .map(doctorMapper::toDoctorResponse)

@@ -22,14 +22,14 @@ public class Service {
     @Column(nullable = false, length = 36, unique = true)
     private String id;
 
-    @Column(name = "service_name", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "name", columnDefinition = "TEXT", nullable = false)
     private String serviceName;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "suggested_fee")
-    private Double suggestedFee;
+    @Column(name = "price")
+    private String price;
 
     @ManyToOne
     @JoinColumn(name = "service_category_id", nullable = false)

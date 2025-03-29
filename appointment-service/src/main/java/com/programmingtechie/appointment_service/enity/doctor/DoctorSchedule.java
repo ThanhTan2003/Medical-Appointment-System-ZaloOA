@@ -39,7 +39,7 @@ public class DoctorSchedule {
     private Integer maxPatients;
 
     @Column(name = "status", nullable = false)
-    private Boolean status; // Trạng thái: true = Hoạt động, false = Tạm ngừng
+    private Boolean status;
 
     @PrePersist
     private void ensureId() {

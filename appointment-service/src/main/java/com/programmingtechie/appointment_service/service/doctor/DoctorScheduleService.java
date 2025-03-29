@@ -1,9 +1,14 @@
 package com.programmingtechie.appointment_service.service.doctor;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.enity.appointment.Appointment;
+import com.programmingtechie.appointment_service.repository.appointment.AppointmentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +36,7 @@ public class DoctorScheduleService {
     final DoctorScheduleRepository doctorScheduleRepository;
     final DoctorRepository doctorRepository;
     final TimeFrameRepository timeFrameRepository;
+    final AppointmentRepository appointmentRepository;
     final DoctorScheduleMapper doctorScheduleMapper;
 
     private void validateDoctorScheduleRequest(DoctorScheduleRequest request) {
@@ -170,5 +176,37 @@ public class DoctorScheduleService {
                 .collect(Collectors.toList());
 
         return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
+    }
+
+    public List<String> getListDayOfWeekByDoctor(String doctorId) {
+        List<DayOfWeek> daysOfWeek = doctorScheduleRepository.findDistinctDaysOfWeekByDoctorId(doctorId);
+
+        return daysOfWeek.stream()
+                .map(DayOfWeek::name)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getListDayOfWeekByDoctorService(String doctorServiceId) {
+        List<DayOfWeek> daysOfWeek = doctorScheduleRepository.findDistinctDaysOfWeekByDoctorServiceId(doctorServiceId);
+
+        return daysOfWeek.stream()
+                .map(DayOfWeek::name)
+                .collect(Collectors.toList());
+    }
+
+    // Lấy danh sách các lịch trình bác sĩ trong ngày với số lượng cuộc hẹn chưa đầy
+    public ResponseEntity<List<DoctorScheduleResponse>> getScheduleByDoctorAndDate(String doctorId, LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        List<DoctorSchedule> doctorSchedules = doctorScheduleRepository.findByDoctorIdAndDayOfWeek(doctorId, dayOfWeek);
+        List<DoctorScheduleResponse> response = new ArrayList<>();
+        for (DoctorSchedule doctorSchedule : doctorSchedules) {
+            long appointmentCount = appointmentRepository.countByDoctorScheduleIdAndAppointmentDate(doctorSchedule.getId(), date);
+
+            if (appointmentCount < doctorSchedule.getMaxPatients()) {
+                DoctorScheduleResponse scheduleResponse = doctorScheduleMapper.toDoctorScheduleResponse(doctorSchedule);
+                response.add(scheduleResponse);
+            }
+        }
+        return ResponseEntity.ok(response);
     }
 }

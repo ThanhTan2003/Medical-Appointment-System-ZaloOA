@@ -33,23 +33,23 @@ public class Patient {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "gender")
+    @Column(name = "gender", nullable = false)
     private String gender;
 
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "identity_card", unique = true)
+    @Column(name = "identity_card", nullable = false)
     private String identityCard;
+
+    @Column(name = "insurance_id")
+    private String insuranceId;
 
     @Column(name = "address")
     private String address;
-
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
 
     @PrePersist
     private void ensureId() {

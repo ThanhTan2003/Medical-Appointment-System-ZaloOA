@@ -10,7 +10,7 @@ import com.programmingtechie.appointment_service.service.appointment.ClinicServi
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/clinic")
+@RequestMapping("/api/v1/appointment/clinic")
 @RequiredArgsConstructor
 public class ClinicController {
     final ClinicService clinicService;

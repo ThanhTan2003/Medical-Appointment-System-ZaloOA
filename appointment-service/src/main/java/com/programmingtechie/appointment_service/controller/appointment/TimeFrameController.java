@@ -11,7 +11,7 @@ import com.programmingtechie.appointment_service.service.appointment.TimeFrameSe
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/timeframes")
+@RequestMapping("/api/v1/appointment/timeframes")
 @RequiredArgsConstructor
 public class TimeFrameController {
     final TimeFrameService timeFrameService;

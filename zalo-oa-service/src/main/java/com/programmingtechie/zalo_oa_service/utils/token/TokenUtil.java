@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.programmingtechie.zalo_oa_service.dto.response.RefreshTokenResponse;
+import com.programmingtechie.zalo_oa_service.dto.response.token.RefreshTokenResponse;
 import com.programmingtechie.zalo_oa_service.enums.ZaloApiEndpoint;
 import com.programmingtechie.zalo_oa_service.mapper.TokenMapper;
 import com.programmingtechie.zalo_oa_service.oa.APIException;
@@ -54,10 +54,8 @@ public class TokenUtil {
                 header.put("secret_key", secretKey);
                 header.put("Content-Type", "application/x-www-form-urlencoded");
 
-                if (header != null) {
-                    for (Map.Entry<String, String> entry : header.entrySet()) {
-                        sendMethodPost.addHeader(entry.getKey(), entry.getValue());
-                    }
+                for (Map.Entry<String, String> entry : header.entrySet()) {
+                    sendMethodPost.addHeader(entry.getKey(), entry.getValue());
                 }
 
                 Map<String, String> body = new HashMap<>();

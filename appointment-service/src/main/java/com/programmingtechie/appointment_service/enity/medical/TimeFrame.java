@@ -3,6 +3,7 @@ package com.programmingtechie.appointment_service.enity.medical;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import com.programmingtechie.appointment_service.enums.Session;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -16,7 +17,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class TimeFrame {
-
     @Id
     @Column(nullable = false, length = 36, unique = true)
     private String id;
@@ -29,6 +29,9 @@ public class TimeFrame {
 
     @Column(name = "session", nullable = false)
     private String session;
+
+    @Column(name = "status", nullable = false)
+    private Boolean status;
 
     @PrePersist
     private void ensureId() {

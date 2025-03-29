@@ -1,10 +1,13 @@
 package com.programmingtechie.appointment_service.service.appointment;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.enity.doctor.DoctorSchedule;
+import com.programmingtechie.appointment_service.repository.doctor.DoctorScheduleRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,9 +39,11 @@ public class AppointmentService {
     final AppointmentRepository appointmentRepository;
     final PatientRepository patientRepository;
     final DoctorServiceRepository doctorServiceRepository;
-    final TimeFrameRepository timeFrameRepository;
+    final DoctorScheduleRepository doctorScheduleRepository;
     final AppointmentMapper appointmentMapper;
     final AppointmentUtil appointmentUtil;
+
+    String zaloUidDefault = "7546191973773392974";
 
     private void validateAppointmentRequest(AppointmentRequest request) {
         if (request == null || request.getPatientId().trim().isEmpty()) {
@@ -48,14 +53,11 @@ public class AppointmentService {
                 || request.getDoctorServiceId().trim().isEmpty()) {
             throw new IllegalArgumentException("Dịch vụ y tế không được để trống!");
         }
-        if (request.getTimeFrameId() == null || request.getTimeFrameId().trim().isEmpty()) {
+        if (request.getDoctorScheduleId() == null || request.getDoctorScheduleId().trim().isEmpty()) {
             throw new IllegalArgumentException("Khung giờ hẹn không được để trống!");
         }
         if (request.getAppointmentDate() == null) {
             throw new IllegalArgumentException("Ngày hẹn không được để trống!");
-        }
-        if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
-            throw new IllegalArgumentException("Trạng thái lịch hẹn không được để trống!");
         }
     }
 
@@ -90,6 +92,8 @@ public class AppointmentService {
     public ResponseEntity<AppointmentResponse> create(AppointmentRequest request) {
         validateAppointmentRequest(request);
 
+        String zaloUid = zaloUidDefault;
+
         Patient patient = patientRepository
                 .findById(request.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy bệnh nhân!"));
@@ -98,19 +102,19 @@ public class AppointmentService {
                 .findById(request.getDoctorServiceId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ y tế!"));
 
-        TimeFrame timeFrame = timeFrameRepository
-                .findById(request.getTimeFrameId())
+        DoctorSchedule doctorSchedule = doctorScheduleRepository
+                .findById(request.getDoctorScheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung giờ hẹn!"));
 
         Appointment appointment = Appointment.builder()
                 .id(appointmentUtil.generateAppointmentId())
-                .zaloUid(request.getZaloUid())
+                .zaloUid(zaloUid)
                 .patient(patient)
                 .doctorService(doctorService)
-                .timeFrame(timeFrame)
-                .bookingTime(request.getBookingTime())
+                .doctorSchedule(doctorSchedule)
+                .bookingTime(LocalDateTime.now())
                 .appointmentDate(request.getAppointmentDate())
-                .status(request.getStatus())
+                .status(AppointmentStatus.PENDING_CONFIRMATION.getDescription())
                 .build();
 
         appointment = appointmentRepository.save(appointment);
@@ -135,17 +139,14 @@ public class AppointmentService {
                 .findById(request.getDoctorServiceId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy dịch vụ y tế!"));
 
-        TimeFrame timeFrame = timeFrameRepository
-                .findById(request.getTimeFrameId())
+        DoctorSchedule doctorSchedule = doctorScheduleRepository
+                .findById(request.getDoctorScheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung giờ hẹn!"));
 
-        existingAppointment.setZaloUid(request.getZaloUid());
         existingAppointment.setPatient(patient);
         existingAppointment.setDoctorService(doctorService);
-        existingAppointment.setTimeFrame(timeFrame);
-        existingAppointment.setBookingTime(request.getBookingTime());
+        existingAppointment.setDoctorSchedule(doctorSchedule);
         existingAppointment.setAppointmentDate(request.getAppointmentDate());
-        existingAppointment.setStatus(request.getStatus());
 
         appointmentRepository.save(existingAppointment);
         return ResponseEntity.ok(appointmentMapper.toAppointmentResponse(existingAppointment));
@@ -164,10 +165,14 @@ public class AppointmentService {
         return ResponseEntity.ok("Lịch hẹn có mã " + id + " đã được xóa thành công.");
     }
 
-    public PageResponse<AppointmentResponse> getByDoctorServiceId(String doctorServiceId, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+    // Tìm kiếm các cuộc hẹn theo doctorServiceId và status
+    public PageResponse<AppointmentResponse> getByDoctorServiceId(
+            String doctorServiceId, String status, int page, int size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+
+        // Tìm kiếm các cuộc hẹn theo doctorServiceId và status
         Page<Appointment> pageData =
-                appointmentRepository.findByDoctorServiceIdOrderByAppointmentDateDesc(doctorServiceId, pageable);
+                appointmentRepository.findByDoctorServiceIdAndStatus(doctorServiceId, status, pageable);
 
         List<AppointmentResponse> responses = pageData.getContent().stream()
                 .map(appointmentMapper::toAppointmentResponse)
@@ -176,21 +181,12 @@ public class AppointmentService {
         return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
     }
 
-    public PageResponse<AppointmentResponse> getByZaloUid(String zaloUid, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Appointment> pageData = appointmentRepository.findByZaloUidOrderByAppointmentDateDesc(zaloUid, pageable);
+    // Tìm kiếm các cuộc hẹn theo zaloUid và status
+    public PageResponse<AppointmentResponse> getByZaloUid(String zaloUid, String status, int page, int size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
 
-        List<AppointmentResponse> responses = pageData.getContent().stream()
-                .map(appointmentMapper::toAppointmentResponse)
-                .collect(Collectors.toList());
-
-        return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
-    }
-
-    public PageResponse<AppointmentResponse> getByPatientId(String patientId, int page, int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Appointment> pageData =
-                appointmentRepository.findByPatientIdOrderByAppointmentDateDesc(patientId, pageable);
+        // Tìm kiếm các cuộc hẹn theo zaloUid và status
+        Page<Appointment> pageData = appointmentRepository.findByZaloUidAndStatus(zaloUid, status, pageable);
 
         List<AppointmentResponse> responses = pageData.getContent().stream()
                 .map(appointmentMapper::toAppointmentResponse)
@@ -232,5 +228,67 @@ public class AppointmentService {
 
         return new PageResponse<>(
                 appointmentPage.getTotalPages(), page, size, appointmentPage.getTotalElements(), appointmentResponses);
+    }
+
+    // Tìm kiếm các cuộc hẹn theo patientId và status
+    public PageResponse<AppointmentResponse> getByPatientId(String patientId, String status, int page, int size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+
+        // Gọi phương thức trong repository để tìm kiếm và phân trang
+        Page<Appointment> pageData = appointmentRepository.findByPatientIdAndStatus(patientId, status, pageable);
+
+        List<AppointmentResponse> responses = pageData.getContent().stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
+    }
+
+    // Xác nhận lịch hẹn
+    public ResponseEntity<AppointmentResponse> confirmAppointment(String appointmentId) {
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID " + appointmentId));
+        appointment.setStatus(AppointmentStatus.CONFIRMED.getDescription());
+        appointmentRepository.save(appointment);
+        return ResponseEntity.ok(appointmentMapper.toAppointmentResponse(appointment));
+    }
+
+    // Huỷ lịch hẹn
+    public ResponseEntity<AppointmentResponse> cancelAppointment(String appointmentId) {
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID " + appointmentId));
+        appointment.setStatus(AppointmentStatus.CANCELLED.getDescription());
+        appointmentRepository.save(appointment);
+        return ResponseEntity.ok(appointmentMapper.toAppointmentResponse(appointment));
+    }
+
+    // Nhắc lịch khám
+    public ResponseEntity<AppointmentResponse> remindAppointment(String appointmentId) {
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID " + appointmentId));
+        appointment.setStatus(AppointmentStatus.WAITING_FOR_EXAM.getDescription());
+        appointmentRepository.save(appointment);
+        return ResponseEntity.ok(appointmentMapper.toAppointmentResponse(appointment));
+    }
+
+    // Đánh dấu là đã khám
+    public ResponseEntity<AppointmentResponse> markAsExamined(String appointmentId) {
+        Appointment appointment = appointmentRepository
+                .findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy cuộc hẹn với ID " + appointmentId));
+        appointment.setStatus(AppointmentStatus.EXAMINED.getDescription());
+        appointmentRepository.save(appointment);
+        return ResponseEntity.ok(appointmentMapper.toAppointmentResponse(appointment));
+    }
+
+    // Tìm danh sách các cuộc hẹn của bác sĩ theo lịch trình và ngày hẹn
+    public List<AppointmentResponse> getAppointmentsByScheduleAndDate(String doctorScheduleId, LocalDate appointmentDate) {
+        List<Appointment> appointments = appointmentRepository.findByDoctorScheduleIdAndAppointmentDate(doctorScheduleId, appointmentDate);
+        return appointments.stream()
+                .map(appointmentMapper::toAppointmentResponse)
+                .collect(Collectors.toList());
     }
 }

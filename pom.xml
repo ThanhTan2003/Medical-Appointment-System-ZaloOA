@@ -24,7 +24,8 @@
 	<modules>
 		<module>appointment-service</module>
 		<module>zalo-oa-service</module>
-	</modules>
+        <module>api-gateway</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
@@ -103,7 +104,11 @@
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-exporter-otlp</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
 
 	</dependencies>
 

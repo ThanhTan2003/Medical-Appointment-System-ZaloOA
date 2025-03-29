@@ -26,9 +26,6 @@ public class Doctor {
     @Column(name = "zalo_uid")
     private String zaloUid;
 
-    @Column(name = "academic_title", columnDefinition = "TEXT")
-    private String academicTitle; // Học hàm/Học vị (VD: BS, BSCKI,...)
-
     @Column(name = "phone", columnDefinition = "TEXT", nullable = false, unique = true)
     private String phone;
 
@@ -40,6 +37,9 @@ public class Doctor {
 
     @Column(name = "status", nullable = false)
     private Boolean status; // Tình trạng (true = Đang làm việc, false = Ngừng làm việc)
+
+    @Column(name = "image")
+    private String image;
 
     @PrePersist
     private void ensureId() {

@@ -13,11 +13,13 @@ public class ServiceResponse {
 
     private String description;
 
-    private Double suggestedFee;
+    private String price;
 
     private String serviceCategoryId;
 
     private Boolean status;
+
+    private String image;
 
     private ServiceCategoryResponse serviceCategoryResponse;
 }

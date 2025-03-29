@@ -42,9 +42,9 @@ public class DoctorServiceService {
         if (request.getServiceId() == null || request.getServiceId().trim().isEmpty()) {
             throw new IllegalArgumentException("Mã dịch vụ không được để trống!");
         }
-        if (request.getServiceFee() == null || request.getServiceFee() <= 0) {
-            throw new IllegalArgumentException("Phí dịch vụ phải lớn hơn 0!");
-        }
+//        if (request.getServiceFee() == null || request.getServiceFee() <= 0) {
+//            throw new IllegalArgumentException("Phí dịch vụ phải lớn hơn 0!");
+//        }
     }
 
     public ResponseEntity<DoctorServiceResponse> create(DoctorServiceRequest request) {
@@ -161,6 +161,28 @@ public class DoctorServiceService {
     public PageResponse<DoctorServiceResponse> getByStatus(Boolean status, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<DoctorService> pageData = doctorServiceRepository.findByStatus(status, pageable);
+
+        List<DoctorServiceResponse> responses = pageData.getContent().stream()
+                .map(doctorServiceMapper::toDoctorServiceResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
+    }
+
+    public PageResponse<DoctorServiceResponse> searchByService(String keyword, String serviceId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DoctorService> pageData = doctorServiceRepository.findDoctorsByServiceId(keyword, serviceId,pageable);
+
+        List<DoctorServiceResponse> responses = pageData.getContent().stream()
+                .map(doctorServiceMapper::toDoctorServiceResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
+    }
+
+    public PageResponse<DoctorServiceResponse> searchByDoctor(String keyword, String doctorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DoctorService> pageData = doctorServiceRepository.findDoctorsByDoctorId(keyword, doctorId,pageable);
 
         List<DoctorServiceResponse> responses = pageData.getContent().stream()
                 .map(doctorServiceMapper::toDoctorServiceResponse)

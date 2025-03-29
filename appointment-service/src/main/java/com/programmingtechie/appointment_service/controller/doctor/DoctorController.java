@@ -44,6 +44,15 @@ public class DoctorController {
         return doctorService.getAll(page, size);
     }
 
+    @GetMapping("/search-by-service")
+    public PageResponse<DoctorResponse> searchByService(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String serviceId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return doctorService.searchByService(keyword, serviceId, page, size);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DoctorResponse> getById(@PathVariable String id) {
         return doctorService.getById(id);

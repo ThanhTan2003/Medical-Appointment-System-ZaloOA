@@ -27,7 +27,7 @@ public class AppointmentUtil {
         String characters = "06BDYZVR2XJAW5KLTQSI9MC8UHE1OFG34NP7";
         Random random = new Random();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             suffixPart.append(characters.charAt(random.nextInt(characters.length())));
         }
 

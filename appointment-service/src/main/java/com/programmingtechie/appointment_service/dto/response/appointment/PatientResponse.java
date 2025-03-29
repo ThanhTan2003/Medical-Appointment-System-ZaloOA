@@ -25,5 +25,7 @@ public class PatientResponse {
 
     private String address;
 
-    private String notes;
+    private String insuranceId;
+
+    private String image;
 }

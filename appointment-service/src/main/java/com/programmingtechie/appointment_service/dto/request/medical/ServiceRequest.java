@@ -11,7 +11,7 @@ public class ServiceRequest {
 
     private String description;
 
-    private Double suggestedFee;
+    private String price;
 
     private String serviceCategoryId;
 

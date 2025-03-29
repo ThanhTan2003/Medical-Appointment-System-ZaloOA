@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.programmingtechie.zalo_oa_service.utils;
 
 import java.io.UnsupportedEncodingException;
@@ -12,10 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author hienhh
- */
 public class StringUtils {
 
     public static Map<String, String> splitQuery(String query) throws UnsupportedEncodingException {

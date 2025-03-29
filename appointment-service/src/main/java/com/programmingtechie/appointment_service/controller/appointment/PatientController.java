@@ -11,7 +11,7 @@ import com.programmingtechie.appointment_service.service.appointment.PatientServ
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/patients")
+@RequestMapping("/api/v1/appointment/patient")
 @RequiredArgsConstructor
 public class PatientController {
     final PatientService patientService;
@@ -42,5 +42,15 @@ public class PatientController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteById(@PathVariable String id) {
         return patientService.deleteById(id);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<PatientResponse>> searchPatients(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        PageResponse<PatientResponse> response = patientService.getPatients(keyword, page, size);
+        return ResponseEntity.ok(response);
     }
 }

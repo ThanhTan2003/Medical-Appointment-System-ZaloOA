@@ -10,4 +10,10 @@ public class ServiceCategoryResponse {
     private String id;
 
     private String categoryName;
+
+    private String image;
+
+    private String description;
+
+    private Integer quantity;
 }

@@ -16,4 +16,8 @@ public class TimeFrameResponse {
     private LocalTime endTime;
 
     private String session;
+
+    private String name;
+
+    private String fullName;
 }

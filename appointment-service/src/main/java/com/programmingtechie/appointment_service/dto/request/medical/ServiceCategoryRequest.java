@@ -8,4 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class ServiceCategoryRequest {
     private String categoryName;
+    private String description;
 }

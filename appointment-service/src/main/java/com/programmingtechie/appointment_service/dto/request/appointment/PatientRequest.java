@@ -9,8 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientRequest {
-    private String zaloUid;
-
     private String fullName;
 
     private String gender;
@@ -23,5 +21,5 @@ public class PatientRequest {
 
     private String address;
 
-    private String notes;
+    private String insuranceId;
 }

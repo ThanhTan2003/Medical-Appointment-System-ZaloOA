@@ -14,4 +14,21 @@ public interface ServiceRepository extends JpaRepository<Service, String> {
     Page<Service> getAllService(Pageable pageable);
 
     boolean existsByServiceName(String serviceName);
+
+    @Query(
+            value =
+                    "SELECT * FROM public.service WHERE "
+                            + "(unaccent(LOWER(id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
+                            + "OR unaccent(LOWER(name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))) ",
+            nativeQuery = true)
+    Page<Service> search(String keyword, Pageable pageable);
+
+    @Query(
+            value =
+                    "SELECT * FROM public.service WHERE "
+                            + "(unaccent(LOWER(id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) "
+                            + "OR unaccent(LOWER(name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))) "
+                            + "AND service_category_id = :serviceCategoryId",
+            nativeQuery = true)
+    Page<Service> search(String keyword, String serviceCategoryId, Pageable pageable);
 }

@@ -3,9 +3,9 @@ package com.programmingtechie.zalo_oa_service.mapper;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
-import com.programmingtechie.zalo_oa_service.dto.response.AccessTokenResponse;
-import com.programmingtechie.zalo_oa_service.dto.response.RefreshTokenResponse;
-import com.programmingtechie.zalo_oa_service.dto.response.TokenResponse;
+import com.programmingtechie.zalo_oa_service.dto.response.token.AccessTokenResponse;
+import com.programmingtechie.zalo_oa_service.dto.response.token.RefreshTokenResponse;
+import com.programmingtechie.zalo_oa_service.dto.response.token.TokenResponse;
 import com.programmingtechie.zalo_oa_service.entity.Token;
 
 import lombok.RequiredArgsConstructor;

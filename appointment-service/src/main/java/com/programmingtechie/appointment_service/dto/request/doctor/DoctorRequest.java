@@ -14,8 +14,6 @@ public class DoctorRequest {
 
     private String zaloUid;
 
-    private String academicTitle;
-
     private String phone;
 
     private String gender;
@@ -23,4 +21,6 @@ public class DoctorRequest {
     private String description;
 
     private Boolean status;
+
+    private String image;
 }

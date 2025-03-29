@@ -11,16 +11,17 @@ import com.programmingtechie.appointment_service.service.medical.ServiceCategory
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/service-categories")
+@RequestMapping("/api/v1/appointment/service-category")
 @RequiredArgsConstructor
 public class ServiceCategoryController {
     final ServiceCategoryService serviceCategoryService;
 
-    @GetMapping
-    public PageResponse<ServiceCategoryResponse> getAll(
+    @GetMapping("/search")
+    public PageResponse<ServiceCategoryResponse> search(
+            @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
-        return serviceCategoryService.getAll(page, size);
+        return serviceCategoryService.search(page, size, keyword);
     }
 
     @GetMapping("/{id}")

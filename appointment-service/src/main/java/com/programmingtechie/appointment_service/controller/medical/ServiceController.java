@@ -11,7 +11,7 @@ import com.programmingtechie.appointment_service.service.medical.ServiceService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/services")
+@RequestMapping("/api/v1/appointment/service")
 @RequiredArgsConstructor
 public class ServiceController {
     final ServiceService serviceService;
@@ -21,6 +21,15 @@ public class ServiceController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return serviceService.getAll(page, size);
+    }
+
+    @GetMapping("/search")
+    public PageResponse<ServiceResponse> search(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(required = false, defaultValue = "") String serviceCategoryId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return serviceService.search(keyword, serviceCategoryId, page, size);
     }
 
     @GetMapping("/{id}")

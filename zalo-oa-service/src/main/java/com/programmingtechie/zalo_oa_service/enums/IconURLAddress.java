@@ -4,7 +4,12 @@ import lombok.Getter;
 
 @Getter
 public enum IconURLAddress {
-    BANNER("https://res.cloudinary.com/dzss0q8a7/image/upload/v1739780800/banner_bktlnn.jpg"),
+    BANNER("https://res.cloudinary.com/dzss0q8a7/image/upload/v1741447557/banner_PKDK_DanQuy_ujb1aj.png"), // Phong
+    // kham da
+    // khoa Dan
+    // Quy
+    // BANNER("https://res.cloudinary.com/dzss0q8a7/image/upload/v1739780800/banner_bktlnn.jpg"), // Phong kham BS Do
+    // Thien Minh
     INFORMATION("https://res.cloudinary.com/dzss0q8a7/image/upload/v1739781174/information_1_uqrbpb.png"),
     ATM_CARD("https://res.cloudinary.com/dzss0q8a7/image/upload/v1739781174/atm-card_1_x0hyl2.png"),
     DOCUMENT_CANCEL("https://res.cloudinary.com/dzss0q8a7/image/upload/v1739782285/document_htdiva.png"),

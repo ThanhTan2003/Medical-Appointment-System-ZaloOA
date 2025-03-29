@@ -12,6 +12,7 @@ import lombok.Setter;
 @ConfigurationProperties(prefix = "zalo")
 public class ZaloConfig {
     private String appId;
+    private String oaId;
     private String secretKey;
     private String authorizationCode;
 }

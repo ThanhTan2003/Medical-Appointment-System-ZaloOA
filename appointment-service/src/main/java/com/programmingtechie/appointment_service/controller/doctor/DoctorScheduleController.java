@@ -1,5 +1,6 @@
 package com.programmingtechie.appointment_service.controller.doctor;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,8 +11,11 @@ import com.programmingtechie.appointment_service.service.doctor.DoctorScheduleSe
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/doctor-schedules")
+@RequestMapping("/api/v1/appointment/doctor-schedule")
 @RequiredArgsConstructor
 public class DoctorScheduleController {
     final DoctorScheduleService doctorScheduleService;
@@ -52,6 +56,14 @@ public class DoctorScheduleController {
         return doctorScheduleService.getByDoctorId(doctorId, page, size);
     }
 
+    @GetMapping("/doctor/{doctorId}/schedule")
+    public ResponseEntity<List<DoctorScheduleResponse>> getScheduleByDoctorAndDate(
+            @PathVariable String doctorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return doctorScheduleService.getScheduleByDoctorAndDate(doctorId, date);
+    }
+
+
     @GetMapping("/timeframe/{timeFrameId}")
     public PageResponse<DoctorScheduleResponse> getByTimeFrameId(
             @PathVariable String timeFrameId,
@@ -66,5 +78,15 @@ public class DoctorScheduleController {
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return doctorScheduleService.getByStatus(status, page, size);
+    }
+
+    @GetMapping("/get-day-of-week-by-doctor/{doctorId}")
+    public ResponseEntity<List<String>> getListDayOfWeekByDoctor(@PathVariable String doctorId) {
+        return ResponseEntity.ok(doctorScheduleService.getListDayOfWeekByDoctor(doctorId));
+    }
+
+    @GetMapping("/get-day-of-week-by-doctor-service/{doctorServiceId}")
+    public ResponseEntity<List<String>> getListDayOfWeekByDoctorService(@PathVariable String doctorServiceId) {
+        return ResponseEntity.ok(doctorScheduleService.getListDayOfWeekByDoctorService(doctorServiceId));
     }
 }

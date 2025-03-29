@@ -3,8 +3,10 @@ package com.programmingtechie.appointment_service.dto.response.appointment;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorScheduleResponse;
 import com.programmingtechie.appointment_service.dto.response.doctor.DoctorServiceResponse;
 
+import com.programmingtechie.appointment_service.enity.doctor.DoctorSchedule;
 import lombok.*;
 
 @Data
@@ -18,19 +20,21 @@ public class AppointmentResponse {
 
     private String patientId;
 
-    private String patientName;
-
     private String doctorServiceId;
 
-    private String timeFrameId;
+    private String doctorScheduleId;
 
     private LocalDateTime bookingTime;
 
     private LocalDate appointmentDate;
 
+    private String appointmentDateName;
+
     private String status;
 
-    private TimeFrameResponse timeFrameResponse;
+    private PatientResponse patientResponse;
+
+    private DoctorScheduleResponse doctorScheduleResponse;
 
     private DoctorServiceResponse doctorServiceResponse;
 }

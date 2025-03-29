@@ -10,17 +10,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppointmentRequest {
-    private String zaloUid;
-
     private String patientId;
 
     private String doctorServiceId;
 
-    private String timeFrameId;
-
-    private LocalDateTime bookingTime;
+    private String doctorScheduleId;
 
     private LocalDate appointmentDate;
 
-    private String status;
 }

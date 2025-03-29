@@ -15,7 +15,7 @@ public class DoctorServiceResponse {
 
     private String serviceId;
 
-    private Double serviceFee;
+    private String serviceFee;
 
     private Boolean status;
 

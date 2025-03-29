@@ -25,6 +25,7 @@ public class DoctorScheduleMapper {
                 .dayOfWeek(doctorSchedule.getDayOfWeek())
                 .maxPatients(doctorSchedule.getMaxPatients())
                 .status(doctorSchedule.getStatus())
+                .roomName("Phòng khám 01")
                 .doctorResponse(doctorMapper.toDoctorResponse(doctorSchedule.getDoctor()))
                 .timeFrameResponse(timeFrameMapper.toTimeFrameResponse(doctorSchedule.getTimeFrame()))
                 .build();
