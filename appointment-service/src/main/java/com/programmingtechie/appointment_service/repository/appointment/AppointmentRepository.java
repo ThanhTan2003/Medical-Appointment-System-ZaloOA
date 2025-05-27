@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -60,4 +61,24 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     // Đếm số lượng cuộc hẹn theo doctorScheduleId và appointmentDate
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.doctorSchedule.id = :doctorScheduleId AND a.appointmentDate = :appointmentDate")
     long countByDoctorScheduleIdAndAppointmentDate(@Param("doctorScheduleId") String doctorScheduleId, @Param("appointmentDate") LocalDate appointmentDate);
+
+    @Query(value = """
+    SELECT a.* 
+    FROM appointment a
+    JOIN doctor_service ds ON a.doctor_service_id = ds.id
+    JOIN doctor d ON ds.doctor_id = d.id
+    JOIN service s ON ds.service_id = s.id
+    WHERE a.patient_id = :patientId
+      AND (:status = '' OR unaccent(LOWER(a.status)) LIKE unaccent(LOWER(CONCAT('%', :status, '%'))))
+      AND (
+          :keyword = '' 
+          OR unaccent(LOWER(a.id)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))
+          OR unaccent(LOWER(d.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))
+          OR unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))
+      )
+    ORDER BY a.appointment_date DESC
+    """,
+            nativeQuery = true)
+    Page<Appointment> findByPatientIdAndStatusAndKeyword(String patientId, String status, String keyword, Pageable pageable);
+
 }

@@ -17,5 +17,4 @@ public class AppointmentRequest {
     private String doctorScheduleId;
 
     private LocalDate appointmentDate;
-
 }

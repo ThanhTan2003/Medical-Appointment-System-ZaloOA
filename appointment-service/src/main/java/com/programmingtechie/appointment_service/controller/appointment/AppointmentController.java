@@ -6,6 +6,7 @@ import java.util.List;
 import com.programmingtechie.appointment_service.enity.appointment.Appointment;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.dto.request.appointment.AppointmentRequest;
@@ -22,11 +23,13 @@ public class AppointmentController {
     final AppointmentService appointmentService;
 
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> create(@RequestBody AppointmentRequest request) {
         return appointmentService.create(request);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> getById( @PathVariable String id) {
         AppointmentResponse response = appointmentService.getById(id).getBody();
 
@@ -35,6 +38,7 @@ public class AppointmentController {
 
     // API tìm kiếm các cuộc hẹn theo doctorServiceId và status (nếu có)
     @GetMapping("/doctor/{doctorServiceId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getByDoctorServiceId(
             @PathVariable String doctorServiceId,
             @RequestParam(value = "status", defaultValue = "") String status,
@@ -48,6 +52,7 @@ public class AppointmentController {
 
     // API tìm kiếm các cuộc hẹn theo zaloUid và status (nếu có)
     @GetMapping("/zalo/{zaloUid}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getByZaloUid(
             @PathVariable String zaloUid,
             @RequestParam(value = "status", defaultValue = "") String status,
@@ -60,17 +65,20 @@ public class AppointmentController {
 
     // API tìm kiếm các cuộc hẹn theo patientId và status (nếu có)
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getByPatientId(
             @PathVariable String patientId,
             @RequestParam(value = "status", defaultValue = "") String status,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        PageResponse<AppointmentResponse> response = appointmentService.getByPatientId(patientId, status, page, size);
 
+        PageResponse<AppointmentResponse> response = appointmentService.getByPatientId(patientId, status, keyword, page, size);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/date/{appointmentDate}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public PageResponse<AppointmentResponse> getByAppointmentDate(
             @PathVariable LocalDate appointmentDate,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -80,6 +88,7 @@ public class AppointmentController {
 
     // API trả về danh sách các trạng thái cuộc hẹn
     @GetMapping("/statuses")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String[]> getAppointmentStatuses() {
         String[] statuses = appointmentService.getAllAppointmentStatuses();
         return ResponseEntity.ok(statuses);
@@ -87,6 +96,7 @@ public class AppointmentController {
 
     // API tìm kiếm các cuộc hẹn theo doctorId, appointmentDate và status (nếu có)
     @GetMapping("/search")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<AppointmentResponse>> getAppointmentsByFilters(
             @RequestParam String doctorId,
             @RequestParam LocalDate appointmentDate,
@@ -102,30 +112,35 @@ public class AppointmentController {
 
     // API xác nhận lịch hẹn (Cập nhật status thành "Đã phê duyệt")
     @PutMapping("/confirm/{appointmentId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> confirmAppointment(@PathVariable String appointmentId) {
         return appointmentService.confirmAppointment(appointmentId);
     }
 
     // API huỷ lịch hẹn (Cập nhật status thành "Đã huỷ")
     @PutMapping("/cancel/{appointmentId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> cancelAppointment(@PathVariable String appointmentId) {
         return appointmentService.cancelAppointment(appointmentId);
     }
 
     // API nhắc lịch khám (Cập nhật status thành "Chờ khám")
     @PutMapping("/remind/{appointmentId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> remindAppointment(@PathVariable String appointmentId) {
         return appointmentService.remindAppointment(appointmentId);
     }
 
     // API đánh dấu là đã khám (Cập nhật status thành "Đã khám")
     @PutMapping("/mark-as-examined/{appointmentId}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<AppointmentResponse> markAsExamined(@PathVariable String appointmentId) {
         return appointmentService.markAsExamined(appointmentId);
     }
 
     // API để tìm danh sách các cuộc hẹn của bác sĩ theo lịch trình và ngày hẹn
     @GetMapping("/search-by-schedule")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<List<AppointmentResponse>> getAppointmentsByScheduleAndDate(
             @RequestParam String doctorScheduleId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {

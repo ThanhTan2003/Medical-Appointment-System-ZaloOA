@@ -231,11 +231,11 @@ public class AppointmentService {
     }
 
     // Tìm kiếm các cuộc hẹn theo patientId và status
-    public PageResponse<AppointmentResponse> getByPatientId(String patientId, String status, int page, int size) {
+    public PageResponse<AppointmentResponse> getByPatientId(String patientId, String status, String keyword, int page, int size) {
         PageRequest pageable = PageRequest.of(page - 1, size);
 
-        // Gọi phương thức trong repository để tìm kiếm và phân trang
-        Page<Appointment> pageData = appointmentRepository.findByPatientIdAndStatus(patientId, status, pageable);
+        Page<Appointment> pageData = appointmentRepository
+                .findByPatientIdAndStatusAndKeyword(patientId, status, keyword, pageable);
 
         List<AppointmentResponse> responses = pageData.getContent().stream()
                 .map(appointmentMapper::toAppointmentResponse)
@@ -243,6 +243,7 @@ public class AppointmentService {
 
         return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
     }
+
 
     // Xác nhận lịch hẹn
     public ResponseEntity<AppointmentResponse> confirmAppointment(String appointmentId) {
