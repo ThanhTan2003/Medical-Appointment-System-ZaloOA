@@ -3,6 +3,7 @@ package com.programmingtechie.appointment_service.controller.notification;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
@@ -21,6 +22,7 @@ public class NotificationReceiverController {
 
     // Lấy tất cả các quyền trong hệ thống
     @GetMapping("/permissions")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<List<NotificationPermissionResponse>> getAllPermissions() {
         List<NotificationPermissionResponse> permissions = notificationReceiverService.getAllPermissions();
         return ResponseEntity.ok(permissions);
@@ -28,6 +30,7 @@ public class NotificationReceiverController {
 
     // Thêm quyền cho người nhận
     @PostMapping("/add-permission")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<NotificationReceiverResponse> addPermission(
             @RequestParam String uid, @RequestParam String permission) {
 
@@ -37,6 +40,7 @@ public class NotificationReceiverController {
 
     // Xóa quyền của người nhận
     @DeleteMapping("/remove-permission")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> removePermission(@RequestParam String uid, @RequestParam String permission) {
 
         notificationReceiverService.removePermissionFromReceiver(uid, permission);
@@ -45,6 +49,7 @@ public class NotificationReceiverController {
 
     // Lấy danh sách người nhận thông báo phân trang theo quyền
     @GetMapping("/by-permission")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<NotificationReceiverResponse>> getReceiversByPermission(
             @RequestParam String permission,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -58,6 +63,7 @@ public class NotificationReceiverController {
 
     // Lấy thông tin NotificationReceiver theo UID
     @GetMapping("/{uid}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<NotificationReceiverResponse> getReceiverByUid(@PathVariable String uid) {
         NotificationReceiverResponse response = notificationReceiverService.getReceiverByUid(uid);
         return ResponseEntity.ok(response);

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
@@ -36,22 +37,26 @@ public class TokenController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TokenResponse> getAccessToken() {
         return ResponseEntity.ok(tokenService.getTokenResponse());
     }
 
     @GetMapping("/generate-token")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TokenResponse> generateToken() {
         return ResponseEntity.ok(tokenService.generateToken());
     }
 
     @GetMapping("/generate-token/authorization-code")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TokenResponse> generateTokenByAuthorizationCode(
             @RequestParam(value = "authorizationCode") String authorizationCode) {
         return ResponseEntity.ok(tokenService.generateTokenByAuthorizationCode(authorizationCode));
     }
 
     @GetMapping("/refresh_token")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TokenResponse> refreshToken() {
         return ResponseEntity.ok(tokenService.refreshToken());
     }

@@ -138,4 +138,32 @@ public class ServiceCategoryService {
                 .data(serviceCategoryResponses)
                 .build();
     }
+
+
+    public PageResponse<ServiceCategoryResponse> getByDoctorId(String doctorId, int page, int size) {
+        if (doctorId == null || doctorId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã bác sĩ không được để trống!");
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<ServiceCategory> pageData = serviceCategoryRepository.findByDoctorId(doctorId, pageable);
+
+        List<ServiceCategoryResponse> serviceCategoryResponses = pageData.getContent().stream()
+                .map(serviceCategory -> ServiceCategoryResponse.builder()
+                        .id(serviceCategory.getId())
+                        .categoryName(serviceCategory.getCategoryName())
+                        .description(serviceCategory.getDescription())
+                        .image(serviceCategory.getImage())
+                        .quantity(serviceCategory.getServices().size())
+                        .build())
+                .collect(Collectors.toList());
+
+        return PageResponse.<ServiceCategoryResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(serviceCategoryResponses)
+                .build();
+    }
 }

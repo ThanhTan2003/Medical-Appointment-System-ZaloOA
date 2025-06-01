@@ -5,9 +5,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import com.programmingtechie.appointment_service.repository.medical.ServiceRepos
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -174,6 +177,49 @@ public class ServiceService {
                 .pageSize(pageData.getSize())
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
+                .data(serviceResponses)
+                .build();
+    }
+
+
+    @Transactional(readOnly = true)
+    public PageResponse<ServiceResponse> searchServicesNotRegisteredByDoctor(
+            String keyword,
+            String doctorId,
+            String serviceCategoryId,
+            int page,
+            int size) {
+        // Validate input
+        if (doctorId == null || doctorId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Doctor ID không được để trống");
+        }
+
+        // Sanitize input
+        keyword = keyword != null ? keyword.trim() : "";
+        serviceCategoryId = serviceCategoryId != null ? serviceCategoryId.trim() : "";
+
+        PageRequest pageRequest = PageRequest.of(
+                page - 1,
+                size,
+                Sort.by(Sort.Direction.ASC, "name")
+        );
+
+        Page<com.programmingtechie.appointment_service.enity.medical.Service> servicePage = serviceRepository.searchServiceNotRegisteredByDoctor(
+                keyword,
+                doctorId,
+                serviceCategoryId,
+                pageRequest
+        );
+
+        List<ServiceResponse> serviceResponses = servicePage.getContent().stream()
+                .map(serviceMapper::toServiceResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<ServiceResponse>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPages(servicePage.getTotalPages())
+                .totalElements(servicePage.getTotalElements())
                 .data(serviceResponses)
                 .build();
     }

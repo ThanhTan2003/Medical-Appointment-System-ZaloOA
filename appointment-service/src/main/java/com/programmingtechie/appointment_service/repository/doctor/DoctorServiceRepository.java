@@ -44,4 +44,37 @@ public interface DoctorServiceRepository extends JpaRepository<DoctorService, St
     Page<DoctorService> findDoctorsByDoctorId(@Param("keyword") String keyword,
                                                @Param("doctorId") String doctorId,
                                                Pageable pageable);
+
+    @Query(
+        value = "SELECT COUNT(DISTINCT ds.doctor_id) " +
+                "FROM doctor_service ds " +
+                "JOIN doctor d ON ds.doctor_id = d.id " +
+                "WHERE ds.service_id = :serviceId " +
+                "AND ds.status = true " +
+                "AND d.status = true",
+        nativeQuery = true)
+    Long countActiveDoctoringByServiceId(@Param("serviceId") String serviceId);
+
+
+
+
+    @Query(value = """
+    SELECT DISTINCT ds.* FROM doctor_service ds
+    JOIN service s ON s.id = ds.service_id
+    WHERE ds.doctor_id = :doctorId
+    AND (:keyword = '' OR 
+        unaccent(LOWER(s.name)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%'))) OR
+        unaccent(LOWER(s.description)) LIKE unaccent(LOWER(CONCAT('%', :keyword, '%')))
+    )
+    AND (:status IS NULL OR ds.status = :status)
+    AND (:serviceCategoryId IS NULL OR :serviceCategoryId = '' OR s.service_category_id = :serviceCategoryId)
+    ORDER BY ds.price DESC
+    """, nativeQuery = true)
+    Page<DoctorService> searchByDoctorIdWithFilters(
+            @Param("keyword") String keyword,
+            @Param("doctorId") String doctorId,
+            @Param("status") Boolean status,
+            @Param("serviceCategoryId") String serviceCategoryId,
+            Pageable pageable
+    );
 }

@@ -1,8 +1,11 @@
 package com.programmingtechie.appointment_service.service.doctor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorStatusResponse;
+import com.programmingtechie.appointment_service.enums.DoctorStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -192,5 +195,49 @@ public class DoctorService {
 
         return new PageResponse<>(
                 doctorPage.getTotalPages(), page, size, doctorPage.getTotalElements(), doctorResponses);
+    }
+
+    public PageResponse<DoctorResponse> searchDoctorsWithStatusAndCategory(
+            String keyword,
+            Boolean status,
+            String serviceCategoryId,
+            int page,
+            int size) {
+        PageRequest pageable = PageRequest.of(page - 1, size);
+        Page<Doctor> doctorPage;
+
+        if (serviceCategoryId != null && !serviceCategoryId.trim().isEmpty()) {
+            doctorPage = doctorRepository.searchDoctorsWithStatusAndCategory(
+                    keyword,
+                    status,
+                    serviceCategoryId,
+                    pageable
+            );
+        } else {
+            doctorPage = doctorRepository.searchDoctorsWithStatus(
+                    keyword,
+                    status,
+                    pageable
+            );
+        }
+
+        List<DoctorResponse> doctorResponses = doctorPage.getContent().stream()
+                .map(doctorMapper::toDoctorResponse)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                doctorPage.getTotalPages(),
+                page,
+                size,
+                doctorPage.getTotalElements(),
+                doctorResponses);
+    }
+
+
+    public List<DoctorStatusResponse> getAllDoctorStatuses() {
+        return List.of(
+                new DoctorStatusResponse(true, DoctorStatus.ACTIVE.getDescription()),
+                new DoctorStatusResponse(false, DoctorStatus.INACTIVE.getDescription())
+        );
     }
 }

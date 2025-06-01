@@ -36,9 +36,10 @@ public class DoctorMapper {
         return doctorResponse;
     }
 
-    public String getNameOfServiceCategory(String doctorId) {
+    public List<String> getNameOfServiceCategory(String doctorId) {
         List<String> categoryNames = serviceCategoryRepository.findServiceCategoryNamesByDoctorId(doctorId);
-        return String.join(", ", categoryNames);
+        return categoryNames;
+        // return String.join(", ", categoryNames);
     }
 
 }

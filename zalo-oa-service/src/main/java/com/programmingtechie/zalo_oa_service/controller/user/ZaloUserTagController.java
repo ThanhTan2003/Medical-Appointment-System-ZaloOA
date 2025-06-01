@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.programmingtechie.zalo_oa_service.dto.response.user.TagResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.zalo_oa_service.dto.response.PageResponse;
@@ -21,6 +22,7 @@ public class ZaloUserTagController {
 
     // Thêm tag cho user
     @PostMapping("/add")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> addTagForUser(@RequestParam String userId, @RequestParam String tagName) {
         zaloUserTagService.addTagForUser(userId, tagName); // Chuyển yêu cầu cho Service xử lý
         return ResponseEntity.ok("Tag đã được thêm cho user.");
@@ -28,6 +30,7 @@ public class ZaloUserTagController {
 
     // Xoá tag của user
     @DeleteMapping("/remove")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> removeTagFromUser(@RequestParam String userId, @RequestParam String tagName) {
         zaloUserTagService.removeTagFromUser(userId, tagName);
         return ResponseEntity.ok("Tag đã được xoá khỏi user.");
@@ -35,6 +38,7 @@ public class ZaloUserTagController {
 
     // Lấy danh sách tag của user
     @GetMapping("/tags")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<List<TagResponse>> getTagsByUserId(@RequestParam String userId) {
         List<TagResponse> tags = zaloUserTagService.getTagsByUserId(userId);
         return ResponseEntity.ok(tags);
@@ -42,6 +46,7 @@ public class ZaloUserTagController {
 
     // Lấy danh sách user theo tag_name
     @GetMapping("/users-by-tag")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<ZaloUserResponse>> getUsersByTagName(
             @RequestParam String tagName,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -54,6 +59,7 @@ public class ZaloUserTagController {
 
     // Lấy danh sách user theo danh sách tag_names
     @GetMapping("/users-by-tags")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<ZaloUserResponse>> getUsersByTagNames(
             @RequestParam List<String> tagNames,
             @RequestParam(value = "page", defaultValue = "1") int page,

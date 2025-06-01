@@ -2,6 +2,7 @@ package com.programmingtechie.appointment_service.controller.doctor;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.dto.request.doctor.DoctorScheduleRequest;
@@ -21,11 +22,13 @@ public class DoctorScheduleController {
     final DoctorScheduleService doctorScheduleService;
 
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorScheduleResponse> create(@RequestBody DoctorScheduleRequest request) {
         return doctorScheduleService.create(request);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public PageResponse<DoctorScheduleResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -33,11 +36,13 @@ public class DoctorScheduleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorScheduleResponse> getById(@PathVariable String id) {
         return doctorScheduleService.getById(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorScheduleResponse> updateById(
             @PathVariable String id, @RequestBody DoctorScheduleRequest request) {
         return doctorScheduleService.updateById(id, request);

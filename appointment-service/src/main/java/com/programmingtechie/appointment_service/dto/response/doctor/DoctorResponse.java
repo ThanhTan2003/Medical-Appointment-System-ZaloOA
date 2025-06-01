@@ -1,9 +1,12 @@
 package com.programmingtechie.appointment_service.dto.response.doctor;
 
+import com.programmingtechie.appointment_service.dto.response.medical.ServiceCategoryResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -28,5 +31,7 @@ public class DoctorResponse {
 
     private String image;
 
-    private String nameOfServiceCategory;
+    private List<String> nameOfServiceCategory;
+
+    //private List<String> serviceCategories;
 }

@@ -2,6 +2,7 @@ package com.programmingtechie.zalo_oa_service.controller.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.zalo_oa_service.dto.request.user.TagRequest;
@@ -20,6 +21,7 @@ public class TagController {
 
     // Thêm tag mới
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TagResponse> createTag(@RequestBody TagRequest request) {
         TagResponse response = tagService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -27,6 +29,7 @@ public class TagController {
 
     // Cập nhật tag theo id
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TagResponse> updateTag(@PathVariable String id, @RequestBody TagRequest request) {
         TagResponse response = tagService.update(id, request);
         return ResponseEntity.ok(response);
@@ -34,6 +37,7 @@ public class TagController {
 
     // Xoá tag theo id
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> deleteTag(@PathVariable String id) {
         tagService.delete(id);
         return ResponseEntity.ok("Tag với id " + id + " đã bị xoá.");
@@ -41,6 +45,7 @@ public class TagController {
 
     // Kiểm tra sự tồn tại của tag theo name
     @GetMapping("/exists")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<Boolean> checkTagExists(@RequestParam String name) {
         boolean exists = tagService.checkTagExists(name);
         return ResponseEntity.ok(exists);
@@ -48,6 +53,7 @@ public class TagController {
 
     // Lấy danh sách tag phân trang
     @GetMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<TagResponse>> getTags(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -58,6 +64,7 @@ public class TagController {
 
     // Lấy tag theo id
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TagResponse> getTagById(@PathVariable String id) {
         TagResponse response = tagService.getTagById(id);
         return ResponseEntity.ok(response);
@@ -65,6 +72,7 @@ public class TagController {
 
     // Lấy tag theo name
     @GetMapping("/by-name")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TagResponse> getTagByName(@RequestParam String name) {
         TagResponse response = tagService.getTagByName(name);
         return ResponseEntity.ok(response);

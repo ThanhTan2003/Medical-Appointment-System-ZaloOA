@@ -1,6 +1,7 @@
 package com.programmingtechie.appointment_service.controller.appointment;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.appointment_service.dto.request.appointment.TimeFrameRequest;
@@ -17,11 +18,13 @@ public class TimeFrameController {
     final TimeFrameService timeFrameService;
 
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TimeFrameResponse> create(@RequestBody TimeFrameRequest request) {
         return timeFrameService.create(request);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public PageResponse<TimeFrameResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -29,17 +32,20 @@ public class TimeFrameController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TimeFrameResponse> getById(@PathVariable String id) {
         return timeFrameService.getById(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<TimeFrameResponse> updateById(
             @PathVariable String id, @RequestBody TimeFrameRequest request) {
         return timeFrameService.updateById(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> deleteById(@PathVariable String id) {
         return timeFrameService.deleteById(id);
     }

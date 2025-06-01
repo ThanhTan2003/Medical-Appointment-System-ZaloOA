@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorServiceStatusResponse;
+import com.programmingtechie.appointment_service.enums.DoctorServiceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -190,4 +192,47 @@ public class DoctorServiceService {
 
         return new PageResponse<>(pageData.getTotalPages(), page, size, pageData.getTotalElements(), responses);
     }
+
+
+    public List<DoctorServiceStatusResponse> getAllDoctorServiceStatuses() {
+        return List.of(
+                new DoctorServiceStatusResponse(true, DoctorServiceStatus.ACTIVE.getDescription()),
+                new DoctorServiceStatusResponse(false, DoctorServiceStatus.INACTIVE.getDescription())
+        );
+    }
+
+    public PageResponse<DoctorServiceResponse> searchByDoctorWithFilters(
+            String keyword,
+            String doctorId,
+            Boolean status,
+            String serviceCategoryId,
+            int page,
+            int size) {
+
+        if (doctorId == null || doctorId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã bác sĩ không được để trống!");
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<DoctorService> pageData = doctorServiceRepository.searchByDoctorIdWithFilters(
+                keyword,
+                doctorId,
+                status,
+                serviceCategoryId,
+                pageable
+        );
+
+        List<DoctorServiceResponse> responses = pageData.getContent().stream()
+                .map(doctorServiceMapper::toDoctorServiceResponse)
+                .collect(Collectors.toList());
+
+        return PageResponse.<DoctorServiceResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(responses)
+                .build();
+    }
+
 }

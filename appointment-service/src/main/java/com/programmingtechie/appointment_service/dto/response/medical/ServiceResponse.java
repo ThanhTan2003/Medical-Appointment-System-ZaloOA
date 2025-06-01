@@ -21,5 +21,7 @@ public class ServiceResponse {
 
     private String image;
 
+    private Long numberOfDoctors;
+
     private ServiceCategoryResponse serviceCategoryResponse;
 }

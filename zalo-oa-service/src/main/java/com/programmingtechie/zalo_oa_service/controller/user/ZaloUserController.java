@@ -1,6 +1,7 @@
 package com.programmingtechie.zalo_oa_service.controller.user;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.programmingtechie.zalo_oa_service.dto.request.user.ZaloUserRequest;
@@ -17,26 +18,31 @@ public class ZaloUserController {
     private final ZaloUserService zaloUserService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<ZaloUserResponse> getById(@PathVariable String id) {
         return zaloUserService.getById(id);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<ZaloUserResponse> create(@RequestBody ZaloUserRequest request) {
         return zaloUserService.create(request);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<ZaloUserResponse> update(@PathVariable String id, @RequestBody ZaloUserRequest request) {
         return zaloUserService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> delete(@PathVariable String id) {
         return zaloUserService.deleteById(id);
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<ZaloUserResponse>> searchUsers(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "") String tagId,  // Thay đổi từ status thành tagId

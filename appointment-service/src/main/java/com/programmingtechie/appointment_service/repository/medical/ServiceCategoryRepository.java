@@ -41,4 +41,21 @@ public interface ServiceCategoryRepository extends JpaRepository<ServiceCategory
             "ORDER BY sc.display_order ASC",
             nativeQuery = true)
     List<String> findServiceCategoryNamesByDoctorId(@Param("doctorId") String doctorId);
+
+
+    @Query(value = """
+    SELECT DISTINCT sc.*, 
+    (SELECT COUNT(*) FROM service s 
+     WHERE s.service_category_id = sc.id) as quantity 
+    FROM service_category sc
+    JOIN service s ON s.service_category_id = sc.id
+    JOIN doctor_service ds ON ds.service_id = s.id
+    WHERE ds.doctor_id = :doctorId
+    ORDER BY sc.display_order ASC
+    """, nativeQuery = true)
+    Page<ServiceCategory> findByDoctorId(
+            @Param("doctorId") String doctorId,
+            Pageable pageable
+    );
+
 }

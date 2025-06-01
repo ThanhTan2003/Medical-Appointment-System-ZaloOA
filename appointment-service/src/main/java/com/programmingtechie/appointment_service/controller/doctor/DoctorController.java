@@ -2,10 +2,13 @@ package com.programmingtechie.appointment_service.controller.doctor;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorStatusResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
@@ -38,6 +41,7 @@ public class DoctorController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public PageResponse<DoctorResponse> getAll(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
@@ -45,6 +49,7 @@ public class DoctorController {
     }
 
     @GetMapping("/search-by-service")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public PageResponse<DoctorResponse> searchByService(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "") String serviceId,
@@ -54,26 +59,31 @@ public class DoctorController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorResponse> getById(@PathVariable String id) {
         return doctorService.getById(id);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorResponse> create(@RequestBody DoctorRequest doctorRequest) {
         return doctorService.create(doctorRequest);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<DoctorResponse> update(@PathVariable String id, @RequestBody DoctorRequest doctorRequest) {
         return doctorService.updateById(id, doctorRequest);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<String> delete(@PathVariable String id) {
         return doctorService.deleteById(id);
     }
 
     @GetMapping("/search/status")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<DoctorResponse>> searchDoctorsByStatus(
             @RequestParam Boolean status,
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -84,11 +94,36 @@ public class DoctorController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
     public ResponseEntity<PageResponse<DoctorResponse>> searchDoctors(
             @RequestParam String keyword,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         PageResponse<DoctorResponse> response = doctorService.searchDoctors(keyword, page, size);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search/keyword-status-category")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<PageResponse<DoctorResponse>> searchDoctorsWithStatusAndCategory(
+            @RequestParam String keyword,
+            @RequestParam Boolean status,
+            @RequestParam String serviceCategoryId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResponse<DoctorResponse> response = doctorService.searchDoctorsWithStatusAndCategory(
+                keyword,
+                status,
+                serviceCategoryId,
+                page,
+                size
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/statuses")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<List<DoctorStatusResponse>> getAllDoctorStatuses() {
+        return ResponseEntity.ok(doctorService.getAllDoctorStatuses());
     }
 }

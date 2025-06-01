@@ -1,6 +1,8 @@
 package com.programmingtechie.appointment_service.mapper.medical;
 
 import com.programmingtechie.appointment_service.enums.IconURLAddress;
+import com.programmingtechie.appointment_service.repository.doctor.DoctorServiceRepository;
+import com.programmingtechie.appointment_service.service.doctor.DoctorServiceService;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.response.medical.ServiceResponse;
@@ -11,7 +13,8 @@ import lombok.AllArgsConstructor;
 @Component
 @AllArgsConstructor
 public class ServiceMapper {
-    ServiceCategoryMapper serviceCategoryMapper;
+    private final ServiceCategoryMapper serviceCategoryMapper;
+    private final DoctorServiceRepository doctorServiceRepository;
 
     public ServiceResponse toServiceResponse(Service service) {
         return ServiceResponse.builder()
@@ -23,6 +26,11 @@ public class ServiceMapper {
                 .status(service.getStatus())
                 .image(IconURLAddress.DEFAULT_MEDICAL.getUrl())
                 .serviceCategoryResponse(serviceCategoryMapper.toServiceCategoryResponse(service.getServiceCategory()))
+                .numberOfDoctors(countDoctorsByServiceId(service.getId()))
                 .build();
+    }
+
+    public Long countDoctorsByServiceId(String serviceId) {
+        return doctorServiceRepository.countActiveDoctoringByServiceId(serviceId);
     }
 }
