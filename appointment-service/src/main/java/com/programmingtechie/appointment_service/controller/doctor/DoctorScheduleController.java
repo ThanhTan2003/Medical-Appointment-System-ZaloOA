@@ -1,5 +1,6 @@
 package com.programmingtechie.appointment_service.controller.doctor;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorScheduleStatusResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,7 @@ import com.programmingtechie.appointment_service.service.doctor.DoctorScheduleSe
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -93,5 +95,25 @@ public class DoctorScheduleController {
     @GetMapping("/get-day-of-week-by-doctor-service/{doctorServiceId}")
     public ResponseEntity<List<String>> getListDayOfWeekByDoctorService(@PathVariable String doctorServiceId) {
         return ResponseEntity.ok(doctorScheduleService.getListDayOfWeekByDoctorService(doctorServiceId));
+    }
+
+    // Xem lại
+    @PostMapping("/batch")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<List<DoctorScheduleResponse>> createOrUpdateBatch(
+            @RequestBody List<DoctorScheduleRequest> requests) {
+        return doctorScheduleService.createOrUpdateBatch(requests);
+    }
+    
+    @GetMapping("/active-schedules")
+    public ResponseEntity<List<DoctorScheduleResponse>> getActiveSchedules(
+            @RequestParam String doctorId,
+            @RequestParam DayOfWeek dayOfWeek) {
+        return doctorScheduleService.getActiveSchedules(doctorId, dayOfWeek);
+    }
+
+    @GetMapping("/statuses")
+    public ResponseEntity<List<DoctorScheduleStatusResponse>> getStatuses() {
+        return doctorScheduleService.getStatuses();
     }
 }

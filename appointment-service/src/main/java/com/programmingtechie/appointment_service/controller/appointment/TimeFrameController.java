@@ -1,5 +1,7 @@
 package com.programmingtechie.appointment_service.controller.appointment;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +13,17 @@ import com.programmingtechie.appointment_service.service.appointment.TimeFrameSe
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/appointment/timeframes")
 @RequiredArgsConstructor
 public class TimeFrameController {
-    final TimeFrameService timeFrameService;
+    private final TimeFrameService timeFrameService;
 
     @PostMapping
-    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
-    public ResponseEntity<TimeFrameResponse> create(@RequestBody TimeFrameRequest request) {
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<TimeFrameResponse> create(@Valid @RequestBody TimeFrameRequest request) {
         return timeFrameService.create(request);
     }
 
@@ -44,8 +48,22 @@ public class TimeFrameController {
         return timeFrameService.updateById(id, request);
     }
 
+    @GetMapping("/active")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<List<TimeFrameResponse>> getAllActiveTimeFrames() {
+        return timeFrameService.getAllActiveTimeFrames();
+    }
+
+    @GetMapping("/sessions")
+    @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
+    public ResponseEntity<List<String>> getAllSessions() {
+        return timeFrameService.getAllSessions();
+    }
+
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('QuanTriVienHeThong') or " + "hasRole('GiamDoc')")
+    @PreAuthorize("hasRole('QuanTriVienHeThong') or hasRole('GiamDoc')")
     public ResponseEntity<String> deleteById(@PathVariable String id) {
         return timeFrameService.deleteById(id);
     }

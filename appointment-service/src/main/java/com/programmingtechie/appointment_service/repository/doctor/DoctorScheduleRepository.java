@@ -1,5 +1,7 @@
 package com.programmingtechie.appointment_service.repository.doctor;
 
+import com.programmingtechie.appointment_service.enity.doctor.Doctor;
+import com.programmingtechie.appointment_service.enity.medical.TimeFrame;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +12,8 @@ import com.programmingtechie.appointment_service.enity.doctor.DoctorSchedule;
 
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, String> {
@@ -37,4 +41,16 @@ public interface DoctorScheduleRepository extends JpaRepository<DoctorSchedule, 
             "AND ds.dayOfWeek = :dayOfWeek " +
             "ORDER BY tf.startTime ASC")
     List<DoctorSchedule> findByDoctorIdAndDayOfWeek(String doctorId, DayOfWeek dayOfWeek);
+
+    Optional<DoctorSchedule> findByDoctorAndTimeFrameAndDayOfWeek(Doctor doctor, TimeFrame timeFrame, DayOfWeek dayOfWeek);
+
+    @Query("SELECT ds FROM DoctorSchedule ds " +
+        "JOIN FETCH ds.timeFrame tf " +
+        "WHERE ds.doctor.id = :doctorId " +
+        "AND ds.dayOfWeek = :dayOfWeek " +
+        "AND ds.status = true " +
+        "ORDER BY tf.startTime ASC")
+    List<DoctorSchedule> findActiveSchedulesByDoctorAndDayOfWeek(
+        @Param("doctorId") String doctorId,
+        @Param("dayOfWeek") DayOfWeek dayOfWeek);
 }

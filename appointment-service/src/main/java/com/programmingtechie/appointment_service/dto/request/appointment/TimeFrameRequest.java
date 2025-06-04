@@ -10,8 +10,5 @@ import lombok.*;
 @AllArgsConstructor
 public class TimeFrameRequest {
     private LocalTime startTime;
-
     private LocalTime endTime;
-
-    private String session;
 }

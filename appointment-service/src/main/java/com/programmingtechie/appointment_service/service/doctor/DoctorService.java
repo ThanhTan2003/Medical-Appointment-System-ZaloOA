@@ -2,6 +2,7 @@ package com.programmingtechie.appointment_service.service.doctor;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.programmingtechie.appointment_service.dto.response.doctor.DoctorStatusResponse;
@@ -90,6 +91,10 @@ public class DoctorService {
         if (doctorRepository.existsByPhone(doctorRequest.getPhone())) {
             throw new IllegalArgumentException("Số điện thoại đã tồn tại!");
         }
+
+//        if(Objects.equals(doctorRequest.getName(), "a")) {
+//            throw new IllegalArgumentException("Tên đã tồn tại!");
+//        }
 
         String id = doctorUtil.generateDoctorId();
 

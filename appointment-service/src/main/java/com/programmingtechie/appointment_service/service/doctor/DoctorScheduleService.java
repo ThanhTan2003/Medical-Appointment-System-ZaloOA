@@ -2,18 +2,19 @@ package com.programmingtechie.appointment_service.service.doctor;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.programmingtechie.appointment_service.dto.response.doctor.DoctorScheduleStatusResponse;
 import com.programmingtechie.appointment_service.enity.appointment.Appointment;
+import com.programmingtechie.appointment_service.enums.DoctorScheduleStatus;
 import com.programmingtechie.appointment_service.repository.appointment.AppointmentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.programmingtechie.appointment_service.dto.request.doctor.DoctorScheduleRequest;
 import com.programmingtechie.appointment_service.dto.response.PageResponse;
@@ -54,8 +55,20 @@ public class DoctorScheduleService {
         }
     }
 
+    @Transactional
     public ResponseEntity<DoctorScheduleResponse> create(DoctorScheduleRequest request) {
-        validateDoctorScheduleRequest(request);
+        if (request == null) {
+            throw new IllegalArgumentException("Dữ liệu lịch bác sĩ không được để trống!");
+        }
+        if (request.getDoctorId() == null || request.getDoctorId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã bác sĩ không được để trống!");
+        }
+        if (request.getTimeFrameId() == null || request.getTimeFrameId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã khung giờ không được để trống!");
+        }
+        if (request.getMaxPatients() == null) {
+            throw new IllegalArgumentException("Số lượng bệnh nhân tối đa không được để trống!");
+        }
 
         // Kiểm tra sự tồn tại của Doctor và TimeFrame
         Doctor doctor = doctorRepository
@@ -66,14 +79,31 @@ public class DoctorScheduleService {
                 .findById(request.getTimeFrameId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khung giờ!"));
 
-        DoctorSchedule doctorSchedule = DoctorSchedule.builder()
-                .id(UUID.randomUUID().toString())
-                .doctor(doctor)
-                .timeFrame(timeFrame)
-                .dayOfWeek(request.getDayOfWeek())
-                .maxPatients(request.getMaxPatients())
-                .status(request.getStatus())
-                .build();
+        // Kiểm tra xem đã có lịch với doctor, timeframe và dayOfWeek này chưa
+        Optional<DoctorSchedule> existingSchedule = doctorScheduleRepository
+                .findByDoctorAndTimeFrameAndDayOfWeek(doctor, timeFrame, request.getDayOfWeek());
+
+        DoctorSchedule doctorSchedule;
+        if (existingSchedule.isPresent()) {
+            // Cập nhật lịch hiện có
+            doctorSchedule = existingSchedule.get();
+            doctorSchedule.setMaxPatients(request.getMaxPatients());
+            doctorSchedule.setStatus(request.getMaxPatients() > 0);
+        } else {
+            // Chỉ tạo mới nếu maxPatients > 0
+            if (request.getMaxPatients() <= 0) {
+                throw new IllegalArgumentException("Không thể tạo mới lịch với số lượng bệnh nhân bằng 0!");
+            }
+
+            doctorSchedule = DoctorSchedule.builder()
+                    .id(UUID.randomUUID().toString())
+                    .doctor(doctor)
+                    .timeFrame(timeFrame)
+                    .dayOfWeek(request.getDayOfWeek())
+                    .maxPatients(request.getMaxPatients())
+                    .status(true) // maxPatients > 0 nên status = true
+                    .build();
+        }
 
         doctorSchedule = doctorScheduleRepository.save(doctorSchedule);
         return ResponseEntity.ok(doctorScheduleMapper.toDoctorScheduleResponse(doctorSchedule));
@@ -208,5 +238,111 @@ public class DoctorScheduleService {
             }
         }
         return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    public ResponseEntity<List<DoctorScheduleResponse>> createOrUpdateBatch(List<DoctorScheduleRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách lịch bác sĩ không được để trống!");
+        }
+
+        // Lấy danh sách doctorId và timeFrameId để kiểm tra tồn tại
+        Set<String> doctorIds = requests.stream()
+                .map(DoctorScheduleRequest::getDoctorId)
+                .collect(Collectors.toSet());
+        Set<String> timeFrameIds = requests.stream()
+                .map(DoctorScheduleRequest::getTimeFrameId)
+                .collect(Collectors.toSet());
+
+        // Kiểm tra tồn tại của doctors và timeframes
+        Map<String, Doctor> doctorMap = doctorRepository.findAllById(doctorIds).stream()
+                .collect(Collectors.toMap(Doctor::getId, doctor -> doctor));
+        Map<String, TimeFrame> timeFrameMap = timeFrameRepository.findAllById(timeFrameIds).stream()
+                .collect(Collectors.toMap(TimeFrame::getId, timeFrame -> timeFrame));
+
+        // Validate doctors và timeframes
+        for (String doctorId : doctorIds) {
+            if (!doctorMap.containsKey(doctorId)) {
+                throw new IllegalArgumentException("Không tìm thấy bác sĩ có mã: " + doctorId);
+            }
+        }
+        for (String timeFrameId : timeFrameIds) {
+            if (!timeFrameMap.containsKey(timeFrameId)) {
+                throw new IllegalArgumentException("Không tìm thấy khung giờ có mã: " + timeFrameId);
+            }
+        }
+
+        List<DoctorSchedule> schedulesToSave = new ArrayList<>();
+
+        for (DoctorScheduleRequest request : requests) {
+            Doctor doctor = doctorMap.get(request.getDoctorId());
+            TimeFrame timeFrame = timeFrameMap.get(request.getTimeFrameId());
+
+            // Tìm lịch hiện có với doctor, timeframe và dayOfWeek
+            Optional<DoctorSchedule> existingSchedule = doctorScheduleRepository.findByDoctorAndTimeFrameAndDayOfWeek(
+                    doctor, timeFrame, request.getDayOfWeek());
+
+            if (existingSchedule.isPresent()) {
+                // Cập nhật lịch hiện có
+                DoctorSchedule scheduleToUpdate = existingSchedule.get();
+                scheduleToUpdate.setMaxPatients(request.getMaxPatients());
+                scheduleToUpdate.setStatus(request.getStatus());
+                schedulesToSave.add(scheduleToUpdate);
+            } else if (request.getMaxPatients() > 0) {
+                // Chỉ tạo mới nếu maxPatients > 0
+                DoctorSchedule newSchedule = DoctorSchedule.builder()
+                        .id(UUID.randomUUID().toString())
+                        .doctor(doctor)
+                        .timeFrame(timeFrame)
+                        .dayOfWeek(request.getDayOfWeek())
+                        .maxPatients(request.getMaxPatients())
+                        .status(true) // maxPatients > 0 nên status = true
+                        .build();
+                schedulesToSave.add(newSchedule);
+            }
+        }
+
+        // Lưu tất cả các lịch vào database trong một lần
+        List<DoctorSchedule> savedSchedules = doctorScheduleRepository.saveAll(schedulesToSave);
+
+        // Chuyển đổi kết quả thành response
+        List<DoctorScheduleResponse> responses = savedSchedules.stream()
+                .map(doctorScheduleMapper::toDoctorScheduleResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
+    }
+
+    public ResponseEntity<List<DoctorScheduleResponse>> getActiveSchedules(String doctorId, DayOfWeek dayOfWeek) {
+        if (doctorId == null || doctorId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mã bác sĩ không được để trống!");
+        }
+        if (dayOfWeek == null) {
+            throw new IllegalArgumentException("Ngày trong tuần không được để trống!");
+        }
+
+        // Kiểm tra sự tồn tại của doctor
+        if (!doctorRepository.existsById(doctorId)) {
+            throw new IllegalArgumentException("Không tìm thấy bác sĩ với mã: " + doctorId);
+        }
+
+        List<DoctorSchedule> activeSchedules = doctorScheduleRepository
+                .findActiveSchedulesByDoctorAndDayOfWeek(doctorId, dayOfWeek);
+
+        List<DoctorScheduleResponse> responses = activeSchedules.stream()
+                .map(doctorScheduleMapper::toDoctorScheduleResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responses);
+    }
+
+    public ResponseEntity<List<DoctorScheduleStatusResponse>> getStatuses() {
+        List<DoctorScheduleStatusResponse> statuses = Arrays.stream(DoctorScheduleStatus.values())
+                .map(status -> new DoctorScheduleStatusResponse(
+                        status == DoctorScheduleStatus.ACTIVE,
+                        status.getDescription()
+                ))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(statuses);
     }
 }

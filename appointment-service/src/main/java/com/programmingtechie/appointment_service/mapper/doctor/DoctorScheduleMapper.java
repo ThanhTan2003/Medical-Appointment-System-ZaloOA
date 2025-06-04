@@ -1,5 +1,6 @@
 package com.programmingtechie.appointment_service.mapper.doctor;
 
+import com.programmingtechie.appointment_service.enums.DoctorScheduleStatus;
 import org.springframework.stereotype.Component;
 
 import com.programmingtechie.appointment_service.dto.response.doctor.DoctorScheduleResponse;
@@ -18,6 +19,8 @@ public class DoctorScheduleMapper {
     }
 
     public DoctorScheduleResponse toDoctorScheduleResponse(DoctorSchedule doctorSchedule) {
+        String statusName = doctorSchedule.getStatus() ? DoctorScheduleStatus.ACTIVE.getDescription() : DoctorScheduleStatus.INACTIVE.getDescription();
+
         return DoctorScheduleResponse.builder()
                 .id(doctorSchedule.getId())
                 .doctorId(doctorSchedule.getDoctor().getId())
@@ -25,9 +28,11 @@ public class DoctorScheduleMapper {
                 .dayOfWeek(doctorSchedule.getDayOfWeek())
                 .maxPatients(doctorSchedule.getMaxPatients())
                 .status(doctorSchedule.getStatus())
-                .roomName("Phòng khám 01")
+                .statusName(statusName)
+                .roomName(null)
                 .doctorResponse(doctorMapper.toDoctorResponse(doctorSchedule.getDoctor()))
                 .timeFrameResponse(timeFrameMapper.toTimeFrameResponse(doctorSchedule.getTimeFrame()))
                 .build();
     }
+
 }
